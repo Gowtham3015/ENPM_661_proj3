@@ -22,4 +22,4 @@
 - Author 1 Gowtham VMS Chintalapati, College ID: 120239878
 - Author 2 Sai Dinesh Gelam, College ID: 120167140
 
-For any inquiries or issues, please open an issue on the GitHub repository (placeholder for GitHub link).
+For any inquiries or issues, please open an issue on the GitHub repository (https://github.com/Gowtham3015/ENPM_661_proj3).
