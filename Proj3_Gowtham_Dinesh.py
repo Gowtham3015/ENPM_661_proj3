@@ -107,12 +107,12 @@ def inital_final_goals():
     
     while True:
         x_coordinate, y_coordinate, initial_orientation = map(int, input("Enter the x and y coordinates of the initial point, followed by the orientation of the robot, separated by spaces: ").split())
-        initial_point = (x_coordinate,y_coordinate)
+        initial_point = (x_coordinate, 500-y_coordinate)
 
         x_coordinate_goal, y_coordinate_goal, goal_orientation = map(int, input("Enter the x and y coordinates of the goal point, followed by the orientation of the robot at the goal point, separated by spaces: ").split()) 
         robotClearance = int(input("input robotClearance: "))
         robot_stepSize = int(input("step size is : "))
-        goal_point = (x_coordinate_goal, y_coordinate_goal)
+        goal_point = (x_coordinate_goal, 500- y_coordinate_goal)
 
         if could_move(initial_point) and could_move(goal_point):
             return initial_point, goal_point , initial_orientation, goal_orientation
@@ -219,7 +219,7 @@ def a_star_implementation(first_point, end_point, first_orentation):
     fixed_list = set()
 
     # Create the first node with the start point, orientation, and initial cost
-    first_node = PossibleNode(first_point[0],500- first_point[1], first_orentation, None, 0, distance(first_point, end_point))
+    first_node = PossibleNode(first_point[0], first_point[1], first_orentation, None, 0, distance(first_point, end_point))
 
     # Add the first node to the priority queue, visited dictionary, and fixed list
     list.put((first_node.get_total_cost(), first_node))
@@ -255,17 +255,19 @@ def a_star_implementation(first_point, end_point, first_orentation):
                         
                         if possible_next_node.get_parent_node() is not None:
                             cv2.line(frame, possible_next_node.get_points(), possible_next_node.get_parent_node().get_points(), newColor)
-                        writer_video.write(frame)
+                            writer_video.write(frame)
+                            cv2.imshow("frame1",frame )
+                            cv2.waitKey(1)
                     else:
                         if visited[new_coordinate].get_total_cost() > possible_next_node.get_total_cost():
                             # Update the visited node with a lower cost and add it to the priority queue
                             visited[new_coordinate] = possible_next_node
                             list.put((possible_next_node.get_total_cost(), possible_next_node))
 
+
 if __name__ == "__main__":
     start_point, end_point, angle, goal_angle = inital_final_goals()
     a_star_implementation(start_point, end_point, angle)
     writer_video.release()
     plt.imshow(frame)
-    plt.gca().invert_yaxis()
     plt.show()
