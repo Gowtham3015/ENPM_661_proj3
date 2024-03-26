@@ -200,6 +200,68 @@ def backtracking(node):
         cv2.arrowedLine(frame, backtrackPath[i], backtrackPath[i + 1], (173, 46, 0), 1 , tipLength= 0.25)
         writer_video.write(frame)
 
+def a_star_implementation(first_point, end_point, first_orentation):
+    """
+    Implements the A* algorithm to find the optimal path from the start point to the goal point.
+
+    Parameters:
+    - first_point (tuple): The (x, y) coordinates of the start point.
+    - end_point (tuple): The (x, y) coordinates of the goal point.
+    - first_orentation (int): The orientation of the robot at the start point.
+    """
+    # Create a priority queue to store the nodes to be explored
+    list = PriorityQueue()
+
+    # Create a dictionary to store the visited nodes
+    visited = dict()
+
+    # Create a set to store the fixed nodes
+    fixed_list = set()
+
+    # Create the first node with the start point, orientation, and initial cost
+    first_node = PossibleNode(first_point[0],500- first_point[1], first_orentation, None, 0, distance(first_point, end_point))
+
+    # Add the first node to the priority queue, visited dictionary, and fixed list
+    list.put((first_node.get_total_cost(), first_node))
+    visited[(first_point[0], first_point[1])] = first_node
+    fixed_list.add(first_point)
+
+    # Start the A* algorithm
+    while not list.empty():
+        # Get the node with the lowest cost from the priority queue
+        this_node = list.get()[1]
+        this_point = (this_node.x, this_node.y)
+        goal_x, goal_y = end_point[0], end_point[1]
+        
+        # Check if the current node is close to the goal point
+        if math.sqrt((this_point[0] - goal_x) ** 2 + (this_point[1] - goal_y) ** 2) <= 1.5:
+            # Perform backtracking to find the optimal path
+            backtracking(this_node)
+            return
+
+        # Define the possible angles for the next move
+        angles = [0, -30, -60, 30, 60]
+        for angle in angles:
+            # Generate the possible next node based on the current node and angle
+            possible_next_node = move(this_node, robot_stepSize, angle=angle)
+            if possible_next_node is not None:
+                new_coordinate = possible_next_node.get_points()
+                if new_coordinate not in fixed_list:
+                    if new_coordinate not in visited:
+                        # Add the possible next node to the priority queue, visited dictionary, and fixed list
+                        list.put((possible_next_node.get_total_cost(), possible_next_node))
+                        visited[new_coordinate] = possible_next_node
+                        fixed_list.add(new_coordinate)
+                        
+                        if possible_next_node.get_parent_node() is not None:
+                            cv2.line(frame, possible_next_node.get_points(), possible_next_node.get_parent_node().get_points(), newColor)
+                        writer_video.write(frame)
+                    else:
+                        if visited[new_coordinate].get_total_cost() > possible_next_node.get_total_cost():
+                            # Update the visited node with a lower cost and add it to the priority queue
+                            visited[new_coordinate] = possible_next_node
+                            list.put((possible_next_node.get_total_cost(), possible_next_node))
+
 if __name__ == "__main__":
     start_point, end_point, angle, goal_angle = inital_final_goals()
     a_star_implementation(start_point, end_point, angle)
